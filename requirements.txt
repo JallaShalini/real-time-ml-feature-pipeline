@@ -1,0 +1,11 @@
+kafka-python
+pyflink
+flask
+flask-socketio
+eventlet
+pandas
+numpy
+python-dotenv
+pytest
+requests
+websocket-client

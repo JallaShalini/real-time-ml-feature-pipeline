@@ -1,0 +1,5 @@
+[
+  {"user_id": "user_101", "type": "binge_watcher"},
+  {"user_id": "user_102", "type": "news_scanner"},
+  {"user_id": "user_103", "type": "casual_user"}
+]

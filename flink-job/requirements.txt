@@ -1,0 +1,3 @@
+pyflink
+kafka-python
+python-dotenv

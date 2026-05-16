@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Feature Dashboard</title>
+  </head>
+  <body>
+    <h1>Real-Time Feature Dashboard</h1>
+    <div>
+      <label>User ID: <input id="userId" /></label>
+      <button onclick="subscribe()">Subscribe</button>
+    </div>
+    <div id="features"></div>
+    <h3>Metrics</h3>
+    <div id="metrics">
+      <div>Watermark lag: <span id="watermark_lag">-</span> s</div>
+      <div>Late events dropped: <span id="late_events">-</span></div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/static/js/main.js"></script>
+  </body>
+</html>

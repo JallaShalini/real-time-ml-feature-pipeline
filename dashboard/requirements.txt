@@ -1,0 +1,5 @@
+flask
+flask-socketio
+kafka-python
+eventlet
+python-dotenv
