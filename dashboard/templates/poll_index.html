@@ -1,0 +1,99 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Feature Dashboard (Polling)</title>
+    <link rel="stylesheet" href="/static/css/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Real-Time Feature Dashboard (Polling)</h1>
+    </header>
+    <main class="container">
+      <section class="controls">
+        <label>User / Content ID: <input id="userId" placeholder="user_101 or content_501" /></label>
+        <button id="subscribeBtn">Subscribe (poll)</button>
+        <div id="conn_status" style="margin-left:12px;color:var(--muted)"></div>
+      </section>
+
+      <section class="status-panel">
+        <div class="status-card">
+          <h4>Kafka</h4>
+          <div id="kafka_status">Checking...</div>
+        </div>
+        <div class="status-card">
+          <h4>Flink JobManager</h4>
+          <div id="flink_status">Checking...</div>
+        </div>
+        <div class="status-card">
+          <h4>Late Events</h4>
+          <div id="late_events">-</div>
+        </div>
+        <div class="status-card">
+          <h4>Watermark Lag (s)</h4>
+          <div id="watermark_lag">-</div>
+        </div>
+      </section>
+
+      <section class="features-grid" id="features_grid">
+        <!-- real-time feature cards will be injected here -->
+      </section>
+    </main>
+
+    <script>
+      let pollInterval = null;
+      function makeCard(id, feature, value, computed_at){
+        const cardId = `card_${feature.replace(/[^a-z0-9_]/gi,'_')}`;
+        let card = document.getElementById(cardId);
+        if (!card){
+          card = document.createElement('div');
+          card.className = 'feature-card';
+          card.id = cardId;
+          card.innerHTML = `<h3>${feature}</h3><div class="feature-value metric-small">${value}</div><div class="feature-meta">Last computed: <span class="computed_at">${computed_at}</span> — freshness: <span class="freshness">-</span>s</div>`;
+          document.getElementById('features_grid').prepend(card);
+        } else {
+          card.querySelector('.feature-value').innerText = value;
+          card.querySelector('.computed_at').innerText = computed_at;
+        }
+        try{
+          const ts = new Date(computed_at).getTime();
+          const now = Date.now();
+          const secs = Math.max(0, ((now - ts)/1000).toFixed(1));
+          card.querySelector('.freshness').innerText = secs;
+        }catch(e){console.warn(e)}
+      }
+
+      async function fetchEntity(id){
+        try{
+          const res = await fetch(`/poll/entity/${encodeURIComponent(id)}`);
+          if (!res.ok) return;
+          const data = await res.json();
+          Object.entries(data).forEach(([fname, info]) => {
+            makeCard(id, fname, info.value, info.computed_at);
+          });
+        }catch(e){console.warn(e)}
+      }
+
+      async function fetchMetrics(){
+        try{
+          const res = await fetch('/poll/metrics');
+          const m = await res.json();
+          if (m.watermark_lag_seconds) document.getElementById('watermark_lag').innerText = Number(m.watermark_lag_seconds).toFixed(1);
+          if (m.late_events_dropped_total) document.getElementById('late_events').innerText = parseInt(m.late_events_dropped_total);
+        }catch(e){console.warn(e)}
+      }
+
+      document.addEventListener('DOMContentLoaded', ()=>{
+        document.getElementById('subscribeBtn').addEventListener('click', ()=>{
+          const id = document.getElementById('userId').value;
+          document.getElementById('features_grid').innerHTML = '';
+          if (pollInterval) clearInterval(pollInterval);
+          fetchEntity(id);
+          pollInterval = setInterval(()=>{ fetchEntity(id); fetchMetrics(); }, 4000);
+        });
+        setInterval(async ()=>{ const s = await fetch('/status').then(r=>r.json()).catch(()=>({kafka:{ok:false},flink:{ok:false}})); document.getElementById('kafka_status').innerText = s.kafka.ok ? 'OK':'Error'; document.getElementById('flink_status').innerText = s.flink.ok ? 'OK':'Error'; }, 5000);
+      });
+    </script>
+  </body>
+</html>

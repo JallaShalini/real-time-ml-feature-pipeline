@@ -1,21 +1,47 @@
 <!doctype html>
 <html>
   <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Feature Dashboard</title>
+    <link rel="stylesheet" href="/static/css/styles.css" />
   </head>
   <body>
-    <h1>Real-Time Feature Dashboard</h1>
-    <div>
-      <label>User ID: <input id="userId" /></label>
-      <button onclick="subscribe()">Subscribe</button>
-    </div>
-    <div id="features"></div>
-    <h3>Metrics</h3>
-    <div id="metrics">
-      <div>Watermark lag: <span id="watermark_lag">-</span> s</div>
-      <div>Late events dropped: <span id="late_events">-</span></div>
-    </div>
-    <script src="/socket.io/socket.io.js"></script>
+    <header>
+      <h1>Real-Time Feature Dashboard</h1>
+    </header>
+    <main class="container">
+      <section class="controls">
+        <label>User / Content ID: <input id="userId" placeholder="user_101 or content_501" /></label>
+        <button id="subscribeBtn">Subscribe</button>
+        <div id="conn_status" style="margin-left:12px;color:var(--muted)"></div>
+      </section>
+
+      <section class="status-panel">
+        <div class="status-card">
+          <h4>Kafka</h4>
+          <div id="kafka_status">Checking...</div>
+        </div>
+        <div class="status-card">
+          <h4>Flink JobManager</h4>
+          <div id="flink_status">Checking...</div>
+        </div>
+        <div class="status-card">
+          <h4>Late Events</h4>
+          <div id="late_events">-</div>
+        </div>
+        <div class="status-card">
+          <h4>Watermark Lag (s)</h4>
+          <div id="watermark_lag">-</div>
+        </div>
+      </section>
+
+      <section class="features-grid" id="features_grid">
+        <!-- real-time feature cards will be injected here -->
+      </section>
+    </main>
+
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js" integrity="sha384-+V4iVq0q1+YQqGx0Kf1m5l0mKx1Jgq3xq3n1x6kzq1Vf0Y5pQJq1H9Vf1s9K2x2P" crossorigin="anonymous"></script>
     <script src="/static/js/main.js"></script>
   </body>
 </html>
