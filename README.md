@@ -74,3 +74,8 @@ docker ps
 - `dashboard/` - dashboard app
 - `analysis/` - analysis utilities
 - `tests/integration_test.py` - integration check
+
+## Included sample jobs
+
+- `flink-job/minimal_job.py` - a minimal PyFlink streaming job demonstrating how to run a Python job in the Flink environment.
+- `sample-jobs/WordCount.jar` - example Flink JAR copied from the Flink image; useful for testing job submission through the Flink UI.
